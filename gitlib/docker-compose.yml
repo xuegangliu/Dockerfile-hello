@@ -1,0 +1,140 @@
+version: '2'
+services:
+  redis:
+    restart: always
+    image: sameersbn/redis:4.0.9-1
+    command:
+    - --loglevel warning
+    volumes:
+    # redis 储存空间挂载到外部
+    - /data/gitlab/redis:/var/lib/redis:Z
+  postgresql:
+    restart: always
+    image: sameersbn/postgresql:10
+    volumes:
+    # postgresql 储存空间挂载到外部
+    - /data/gitlab/postgresql:/var/lib/postgresql:Z
+    environment:
+    - DB_USER=gitlab
+    - DB_PASS=password
+    - DB_NAME=gitlabhq_production
+    - DB_EXTENSION=pg_trgm
+  gitlab:
+    restart: always
+    # 此处应注意修改为 9.2.5 版本，最新版通过 repo by URL 从其他仓库迁移过来的项目使用 create merge request 时会出现 503 bug
+    image: sameersbn/gitlab:9.2.5
+    depends_on:
+    - redis
+    - postgresql
+    ports:
+    # 将容器中的 80、443、22 端口映射到宿主机
+    - "127.0.0.1:10080:80"
+    - "127.0.0.1:10443:443"
+    - "10022:22"
+    volumes:
+    # gitlab 储存空间挂载到外部
+    - /data/gitlab/gitlab:/home/git/data:Z
+    environment:
+    - DEBUG=false
+    - DB_ADAPTER=postgresql
+    - DB_HOST=postgresql
+    - DB_PORT=5432
+    - DB_USER=gitlab
+    - DB_PASS=password
+    - DB_NAME=gitlabhq_production
+    - REDIS_HOST=redis
+    - REDIS_PORT=6379
+    - TZ=Asia/Kolkata
+    - GITLAB_TIMEZONE=Kolkata
+    - GITLAB_HTTPS=false
+    - SSL_SELF_SIGNED=false
+    
+    # 此处需要改为你访问 gitlab 的域名或者IP
+    - GITLAB_HOST=140.143.250.99
+    # 如果访问时使用 http 为 80，https 则为 443
+    - GITLAB_PORT=80
+    - GITLAB_SSH_PORT=10022
+    - GITLAB_RELATIVE_URL_ROOT=
+    # 为了安全起见可以使用 pwgen -Bsv1 64 命令生成随机的 64 个字符串值替换下面三个变量的值
+    - GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alphanumeric-string
+    - GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alphanumeric-string
+    - GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alphanumeric-string
+    
+    # 需要设置一个默认的 root 用户邮箱，密码不填第一次登录会让你自己设置
+    - GITLAB_ROOT_PASSWORD=
+    - GITLAB_ROOT_EMAIL=lxghoney@163.com
+    - GITLAB_NOTIFY_ON_BROKEN_BUILDS=true
+    - GITLAB_NOTIFY_PUSHER=false
+    - GITLAB_EMAIL=lxghoney@163.com
+    - GITLAB_EMAIL_REPLY_TO=lxghoney@163.com
+    - GITLAB_INCOMING_EMAIL_ADDRESS=lxghoney@163.com
+    - GITLAB_BACKUP_SCHEDULE=daily
+    - GITLAB_BACKUP_TIME=01:00
+    
+    # 以下为 QQ 企业邮箱配置
+    - SMTP_ENABLED=false
+    - SMTP_DOMAIN=exmail.qq.com
+    - SMTP_HOST=smtp.exmail.qq.com
+    - SMTP_PORT=465
+    - SMTP_USER=xxx@xxx.xxx
+    - SMTP_PASS=password
+    - SMTP_STARTTLS=true
+    # SMTP_TLS 选项原始配置文件中没有，默认为 false，使用 QQ 企业邮箱一定要加上，否则无法发送邮件
+    - SMTP_TLS=false
+    - SMTP_AUTHENTICATION=login
+    - IMAP_ENABLED=false
+    - IMAP_HOST=imap.gmail.com
+    - IMAP_PORT=993
+    - IMAP_USER=mailer@example.com
+    - IMAP_PASS=password
+    - IMAP_SSL=true
+    - IMAP_STARTTLS=false
+    - OAUTH_ENABLED=false
+    - OAUTH_AUTO_SIGN_IN_WITH_PROVIDER=
+    - OAUTH_ALLOW_SSO=
+    - OAUTH_BLOCK_AUTO_CREATED_USERS=true
+    - OAUTH_AUTO_LINK_LDAP_USER=false
+    - OAUTH_AUTO_LINK_SAML_USER=false
+    - OAUTH_EXTERNAL_PROVIDERS=
+    - OAUTH_CAS3_LABEL=cas3
+    - OAUTH_CAS3_SERVER=
+    - OAUTH_CAS3_DISABLE_SSL_VERIFICATION=false
+    - OAUTH_CAS3_LOGIN_URL=/cas/login
+    - OAUTH_CAS3_VALIDATE_URL=/cas/p3/serviceValidate
+    - OAUTH_CAS3_LOGOUT_URL=/cas/logout
+    - OAUTH_GOOGLE_API_KEY=
+    - OAUTH_GOOGLE_APP_SECRET=
+    - OAUTH_GOOGLE_RESTRICT_DOMAIN=
+    - OAUTH_FACEBOOK_API_KEY=
+    - OAUTH_FACEBOOK_APP_SECRET=
+    - OAUTH_TWITTER_API_KEY=
+    - OAUTH_TWITTER_APP_SECRET=
+    - OAUTH_GITHUB_API_KEY=
+    - OAUTH_GITHUB_APP_SECRET=
+    - OAUTH_GITHUB_URL=
+    - OAUTH_GITHUB_VERIFY_SSL=
+    - OAUTH_GITLAB_API_KEY=
+    - OAUTH_GITLAB_APP_SECRET=
+    - OAUTH_BITBUCKET_API_KEY=
+    - OAUTH_BITBUCKET_APP_SECRET=
+    - OAUTH_SAML_ASSERTION_CONSUMER_SERVICE_URL=
+    - OAUTH_SAML_IDP_CERT_FINGERPRINT=
+    - OAUTH_SAML_IDP_SSO_TARGET_URL=
+    - OAUTH_SAML_ISSUER=
+    - OAUTH_SAML_LABEL="Our SAML Provider"
+    - OAUTH_SAML_NAME_IDENTIFIER_FORMAT=urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+    - OAUTH_SAML_GROUPS_ATTRIBUTE=
+    - OAUTH_SAML_EXTERNAL_GROUPS=
+    - OAUTH_SAML_ATTRIBUTE_STATEMENTS_EMAIL=
+    - OAUTH_SAML_ATTRIBUTE_STATEMENTS_NAME=
+    - OAUTH_SAML_ATTRIBUTE_STATEMENTS_FIRST_NAME=
+    - OAUTH_SAML_ATTRIBUTE_STATEMENTS_LAST_NAME=
+    - OAUTH_CROWD_SERVER_URL=
+    - OAUTH_CROWD_APP_NAME=
+    - OAUTH_CROWD_APP_PASSWORD=
+    - OAUTH_AUTH0_CLIENT_ID=
+    - OAUTH_AUTH0_CLIENT_SECRET=
+    - OAUTH_AUTH0_DOMAIN=
+    - OAUTH_AZURE_API_KEY=
+    - OAUTH_AZURE_API_SECRET=
+    - OAUTH_AZURE_TENANT_ID=
