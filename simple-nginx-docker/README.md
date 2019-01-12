@@ -1,18 +1,18 @@
-# Dockerfile-hello
-hello
+# simple-nginx-docker
+简单搭建nginx服务器
 
-## build
+## 构建
 ```
 cd Dockerfile-hello
 docker build . -t sample:nginx
 ```
 
-## look
+## 查看
 ```
 docker images
 ```
 
-## run images
+## 运行
 ```
 docker run -d -p 80:80 sample:nginx
 ```
