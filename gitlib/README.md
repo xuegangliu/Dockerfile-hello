@@ -1,10 +1,10 @@
 ## gitlib 搭建
-
+在配置文件的路径行,执行如下脚本
 `sudo docker-compose up -d`
 
 ### 利用nginx转向代理
 
-添加配置
+在服务器宿主机添加nginx配置
 
 upstream gitlab {
         server 127.0.0.1:10080;
