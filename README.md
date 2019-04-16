@@ -8,6 +8,10 @@ docker镜像创建使用
 [![GitHub forks](https://img.shields.io/github/forks/xuegangliu/docker-project.svg?style=social&label=Fork)](https://github.com/xuegangliu/docker-project)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+
+## docker-compose安装
+- [docker-comose](https://docs.docker.com/compose/install/)
+
 ## 镜像搭建
 - [gitlib](gitlib/README.md)
 - [mysql5.7](mysql-file/README.md)
