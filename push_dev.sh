@@ -46,4 +46,4 @@ MM="${ICONS[$NUM]} date:$date Commit file"
 #echo $MM
 git add .
 git commit -m "$MM"
-git push origin master:dev
+#git push origin master:dev
